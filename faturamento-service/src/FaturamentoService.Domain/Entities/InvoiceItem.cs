@@ -4,6 +4,9 @@ namespace FaturamentoService.Domain.Entities;
 
 public class InvoiceItem
 {
+    private const int MaxProductCodeLength = 50;
+    private const int MaxProductDescriptionLength = 255;
+
     public Guid Id { get; private set; }
     public Guid InvoiceId { get; private set; }
     public string ProductCode { get; private set; } = string.Empty;
@@ -42,6 +45,11 @@ public class InvoiceItem
         {
             throw new DomainException("Product code is required.");
         }
+
+        if (productCode.Trim().Length > MaxProductCodeLength)
+        {
+            throw new DomainException($"Product code cannot exceed {MaxProductCodeLength} characters.");
+        }
     }
 
     private static void ValidateProductDescription(string productDescription)
@@ -49,6 +57,11 @@ public class InvoiceItem
         if (string.IsNullOrWhiteSpace(productDescription))
         {
             throw new DomainException("Product description is required.");
+        }
+
+        if (productDescription.Trim().Length > MaxProductDescriptionLength)
+        {
+            throw new DomainException($"Product description cannot exceed {MaxProductDescriptionLength} characters.");
         }
     }
 

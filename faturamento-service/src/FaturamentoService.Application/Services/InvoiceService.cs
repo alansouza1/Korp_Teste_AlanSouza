@@ -4,6 +4,7 @@ using FaturamentoService.Application.Exceptions;
 using FaturamentoService.Application.Interfaces;
 using FaturamentoService.Application.Mapping;
 using FaturamentoService.Domain.Entities;
+using FaturamentoService.Domain.Enums;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using AppValidationException = FaturamentoService.Application.Exceptions.ValidationException;
@@ -73,6 +74,10 @@ public class InvoiceService : IInvoiceService
         await ValidateAsync(_addItemsValidator, request, cancellationToken);
 
         var invoice = await GetExistingInvoiceAsync(invoiceId, cancellationToken);
+        if (invoice.Status != InvoiceStatus.Open)
+        {
+            throw new ConflictException("Items can only be added to OPEN invoices.");
+        }
 
         foreach (var item in request.Items)
         {
@@ -89,6 +94,10 @@ public class InvoiceService : IInvoiceService
     public async Task<PrintInvoiceResponseDto> PrintAsync(Guid invoiceId, CancellationToken cancellationToken = default)
     {
         var invoice = await GetExistingInvoiceAsync(invoiceId, cancellationToken);
+        if (invoice.Status != InvoiceStatus.Open)
+        {
+            throw new ConflictException("Only OPEN invoices can be printed.");
+        }
 
         if (!invoice.Items.Any())
         {
