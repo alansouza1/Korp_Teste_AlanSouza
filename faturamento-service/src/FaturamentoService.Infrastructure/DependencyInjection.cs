@@ -19,12 +19,15 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 npgsqlOptions => npgsqlOptions.MigrationsAssembly(typeof(FaturamentoDbContext).Assembly.FullName)));
 
-        services.Configure<StockServiceOptions>(configuration.GetSection(StockServiceOptions.SectionName));
-
         var stockServiceBaseUrl =
-            configuration.GetSection(StockServiceOptions.SectionName).GetValue<string>("BaseUrl")
-            ?? configuration.GetSection("Services").GetValue<string>("EstoqueBaseUrl")
+            configuration.GetSection("Services").GetValue<string>("EstoqueBaseUrl")
+            ?? configuration.GetSection(StockServiceOptions.SectionName).GetValue<string>("BaseUrl")
             ?? throw new InvalidOperationException("Stock service base URL is not configured.");
+
+        services.Configure<StockServiceOptions>(options =>
+        {
+            options.BaseUrl = stockServiceBaseUrl;
+        });
 
         services.AddHttpClient<IStockServiceClient, StockServiceClient>(client =>
             {
