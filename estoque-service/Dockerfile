@@ -1,10 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ./src ./src
 COPY ./EstoqueService.sln ./
+COPY ./src ./src
 
-RUN dotnet restore ./src/EstoqueService.Api/EstoqueService.Api.csproj
+RUN dotnet restore ./EstoqueService.sln
+RUN dotnet build ./src/EstoqueService.Api/EstoqueService.Api.csproj -c Release --no-restore
 RUN dotnet publish ./src/EstoqueService.Api/EstoqueService.Api.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final

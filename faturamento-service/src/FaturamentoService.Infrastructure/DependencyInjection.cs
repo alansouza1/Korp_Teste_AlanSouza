@@ -21,7 +21,9 @@ public static class DependencyInjection
 
         services.Configure<StockServiceOptions>(configuration.GetSection(StockServiceOptions.SectionName));
 
-        var stockServiceBaseUrl = configuration.GetSection(StockServiceOptions.SectionName).GetValue<string>("BaseUrl")
+        var stockServiceBaseUrl =
+            configuration.GetSection(StockServiceOptions.SectionName).GetValue<string>("BaseUrl")
+            ?? configuration.GetSection("Services").GetValue<string>("EstoqueBaseUrl")
             ?? throw new InvalidOperationException("Stock service base URL is not configured.");
 
         services.AddHttpClient<IStockServiceClient, StockServiceClient>(client =>
