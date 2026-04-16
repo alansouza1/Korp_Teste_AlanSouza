@@ -5,6 +5,8 @@ namespace FaturamentoService.Domain.Entities;
 
 public class Invoice
 {
+    private const int MaxLastPrintErrorLength = 1000;
+
     private readonly List<InvoiceItem> _items = [];
 
     public Guid Id { get; private set; }
@@ -53,7 +55,9 @@ public class Invoice
             throw new DomainException("Print error message is required.");
         }
 
-        LastPrintError = message.Trim();
+        LastPrintError = message.Trim().Length > MaxLastPrintErrorLength
+            ? message.Trim()[..MaxLastPrintErrorLength]
+            : message.Trim();
         Touch();
     }
 
