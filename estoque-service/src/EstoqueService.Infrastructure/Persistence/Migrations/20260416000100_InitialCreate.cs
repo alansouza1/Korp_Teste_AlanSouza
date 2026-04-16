@@ -1,8 +1,12 @@
 using System;
+using EstoqueService.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EstoqueService.Infrastructure.Persistence.Migrations;
 
+[DbContext(typeof(EstoqueDbContext))]
+[Migration("20260416000100_InitialCreate")]
 public partial class InitialCreate : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)

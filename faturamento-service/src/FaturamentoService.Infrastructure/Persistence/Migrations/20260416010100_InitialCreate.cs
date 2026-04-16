@@ -1,8 +1,12 @@
 using System;
+using FaturamentoService.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FaturamentoService.Infrastructure.Persistence.Migrations;
 
+[DbContext(typeof(FaturamentoDbContext))]
+[Migration("20260416010100_InitialCreate")]
 public partial class InitialCreate : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
