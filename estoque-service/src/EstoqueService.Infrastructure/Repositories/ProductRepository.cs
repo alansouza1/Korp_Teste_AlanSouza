@@ -77,6 +77,11 @@ public class ProductRepository : IProductRepository
 
     public async Task<IAppTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (string.Equals(_context.Database.ProviderName, "Microsoft.EntityFrameworkCore.InMemory", StringComparison.Ordinal))
+        {
+            return new NoOpTransaction();
+        }
+
         var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
         return new EfCoreTransactionWrapper(transaction);
     }
