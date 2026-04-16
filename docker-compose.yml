@@ -5,17 +5,24 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
 
   estoque-service:
     build:
       context: ./estoque-service
     container_name: estoque-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=estoque_db;Username=postgres;Password=postgres
@@ -27,8 +34,10 @@ services:
       context: ./faturamento-service
     container_name: faturamento-service
     depends_on:
-      - postgres
-      - estoque-service
+      postgres:
+        condition: service_healthy
+      estoque-service:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=faturamento_db;Username=postgres;Password=postgres

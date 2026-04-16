@@ -4,7 +4,7 @@ WORKDIR /src
 COPY ./FaturamentoService.sln ./
 COPY ./src ./src
 
-RUN dotnet restore ./FaturamentoService.sln
+RUN dotnet restore ./src/FaturamentoService.Api/FaturamentoService.Api.csproj
 RUN dotnet build ./src/FaturamentoService.Api/FaturamentoService.Api.csproj -c Release --no-restore
 RUN dotnet publish ./src/FaturamentoService.Api/FaturamentoService.Api.csproj -c Release -o /app/publish --no-build
 

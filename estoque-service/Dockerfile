@@ -4,9 +4,9 @@ WORKDIR /src
 COPY ./EstoqueService.sln ./
 COPY ./src ./src
 
-RUN dotnet restore ./EstoqueService.sln
+RUN dotnet restore ./src/EstoqueService.Api/EstoqueService.Api.csproj
 RUN dotnet build ./src/EstoqueService.Api/EstoqueService.Api.csproj -c Release --no-restore
-RUN dotnet publish ./src/EstoqueService.Api/EstoqueService.Api.csproj -c Release -o /app/publish
+RUN dotnet publish ./src/EstoqueService.Api/EstoqueService.Api.csproj -c Release -o /app/publish --no-build
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

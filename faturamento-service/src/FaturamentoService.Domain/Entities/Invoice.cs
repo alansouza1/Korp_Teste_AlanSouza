@@ -34,6 +34,21 @@ public class Invoice
         };
     }
 
+    public void AssignSequentialNumber(int sequentialNumber)
+    {
+        if (SequentialNumber > 0)
+        {
+            return;
+        }
+
+        if (sequentialNumber <= 0)
+        {
+            throw new DomainException("Sequential number must be greater than zero.");
+        }
+
+        SequentialNumber = sequentialNumber;
+    }
+
     public void AddItem(string productCode, string productDescription, int quantity)
     {
         EnsureIsOpen("Items can only be added to OPEN invoices.");
