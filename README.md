@@ -207,9 +207,4 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 
 ## Autor
 
-<<<<<<< HEAD
 **Alan Souza**  
-Projeto desenvolvido como desafio técnico, com foco em boas práticas de arquitetura, integração entre serviços e experiência de uso.
-=======
-**Alan Souza**
->>>>>>> 377c455f408b4e48add6f33b610a59e689122a39
