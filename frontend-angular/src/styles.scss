@@ -1,0 +1,44 @@
+:root {
+  --page-text: #153b35;
+  --page-muted: #5c726d;
+  --page-surface: rgba(255, 251, 244, 0.86);
+  --page-outline: rgba(21, 59, 53, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--page-text);
+  font-family: 'Aptos', 'Segoe UI', 'Trebuchet MS', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Cambria', 'Constantia', 'Times New Roman', serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.mat-mdc-card-header-text {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.snackbar-error .mat-mdc-snackbar-surface {
+  background: #8f1d1d;
+  color: #fff8f6;
+}

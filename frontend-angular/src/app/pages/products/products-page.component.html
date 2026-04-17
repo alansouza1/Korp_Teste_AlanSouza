@@ -1,0 +1,145 @@
+<section class="page-grid">
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title>Product Catalog</mat-card-title>
+      <mat-card-subtitle>Create and maintain stock records.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="create-form" [formGroup]="createForm" (ngSubmit)="createProduct()">
+        <mat-form-field appearance="outline">
+          <mat-label>Code</mat-label>
+          <input matInput formControlName="code" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Initial stock</mat-label>
+          <input matInput type="number" formControlName="stockQuantity" />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="creating">
+          @if (creating) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <span>Create product</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title>Products</mat-card-title>
+      <mat-card-subtitle>List, filter and select a product to edit.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="filter-form" [formGroup]="filterForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by code</mat-label>
+          <input matInput formControlName="code" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by description</mat-label>
+          <input matInput formControlName="description" />
+        </mat-form-field>
+
+        <button mat-stroked-button type="button" (click)="refreshProducts()">
+          Refresh
+        </button>
+      </form>
+
+      @if (loadingList) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="(products$ | async) ?? []" class="products-table">
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>Code</th>
+            <td mat-cell *matCellDef="let product">{{ product.code }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let product">{{ product.description }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="stockQuantity">
+            <th mat-header-cell *matHeaderCellDef>Stock</th>
+            <td mat-cell *matCellDef="let product">{{ product.stockQuantity }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="updatedAt">
+            <th mat-header-cell *matHeaderCellDef>Updated</th>
+            <td mat-cell *matCellDef="let product">{{ product.updatedAt | date: 'short' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let product">
+              <button mat-button type="button" (click)="selectProduct(product)">Manage</button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>
+
+<mat-card class="panel detail-panel">
+  <mat-card-header>
+    <mat-card-title>Administrative Actions</mat-card-title>
+    <mat-card-subtitle>
+      @if (selectedProduct) {
+        Managing {{ selectedProduct.code }}
+      } @else {
+        Select a product from the list.
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (selectedProduct) {
+      <div class="detail-grid">
+        <form class="detail-form" [formGroup]="editDescriptionForm" (ngSubmit)="saveDescription()">
+          <h3>Update description</h3>
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="savingDescription">
+            Save description
+          </button>
+        </form>
+
+        <form class="detail-form" [formGroup]="stockForm" (ngSubmit)="saveStock()">
+          <h3>Administrative stock update</h3>
+          <mat-form-field appearance="outline">
+            <mat-label>Stock quantity</mat-label>
+            <input matInput type="number" formControlName="stockQuantity" />
+          </mat-form-field>
+          <button mat-flat-button color="accent" type="submit" [disabled]="savingStock">
+            Update stock
+          </button>
+        </form>
+      </div>
+
+      <button mat-button type="button" (click)="clearSelection()">Clear selection</button>
+    } @else {
+      <div class="empty-state">
+        <p>Select a row to edit product information.</p>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
