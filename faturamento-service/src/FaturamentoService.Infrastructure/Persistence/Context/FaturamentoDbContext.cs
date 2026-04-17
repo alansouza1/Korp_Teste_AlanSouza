@@ -11,6 +11,7 @@ public class FaturamentoDbContext : DbContext
 
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+    public DbSet<InvoicePrintIdempotencyRecord> InvoicePrintIdempotencyRecords => Set<InvoicePrintIdempotencyRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

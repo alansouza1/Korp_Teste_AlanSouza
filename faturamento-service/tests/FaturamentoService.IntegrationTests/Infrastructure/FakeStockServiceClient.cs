@@ -7,6 +7,7 @@ public class FakeStockServiceClient : IStockServiceClient
 {
     public Func<IEnumerable<(string ProductCode, int Quantity)>, CancellationToken, Task<StockValidationResultDto>>? ValidateHandler { get; set; }
     public Func<IEnumerable<(string ProductCode, int Quantity)>, CancellationToken, Task>? DebitHandler { get; set; }
+    public int DebitCalls { get; private set; }
 
     public Task<StockValidationResultDto> ValidateStockAsync(IEnumerable<(string ProductCode, int Quantity)> items, CancellationToken cancellationToken = default)
     {
@@ -31,6 +32,8 @@ public class FakeStockServiceClient : IStockServiceClient
 
     public Task DebitStockAsync(IEnumerable<(string ProductCode, int Quantity)> items, CancellationToken cancellationToken = default)
     {
+        DebitCalls++;
+
         if (DebitHandler is not null)
         {
             return DebitHandler(items, cancellationToken);

@@ -2,6 +2,7 @@ using FaturamentoService.Application.Interfaces;
 using FaturamentoService.Domain.Entities;
 using FaturamentoService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace FaturamentoService.Infrastructure.Repositories;
 
@@ -62,6 +63,32 @@ public class InvoiceRepository : IInvoiceRepository
             .FirstOrDefaultAsync(x => x.SequentialNumber == sequentialNumber, cancellationToken);
     }
 
+    public Task<InvoicePrintIdempotencyRecord?> GetPrintIdempotencyRecordAsync(Guid invoiceId, string idempotencyKey, CancellationToken cancellationToken = default)
+    {
+        var normalizedKey = idempotencyKey.Trim();
+
+        return _context.InvoicePrintIdempotencyRecords
+            .FirstOrDefaultAsync(
+                x => x.InvoiceId == invoiceId && x.IdempotencyKey == normalizedKey,
+                cancellationToken);
+    }
+
+    public async Task<bool> TryCreatePrintIdempotencyRecordAsync(InvoicePrintIdempotencyRecord record, CancellationToken cancellationToken = default)
+    {
+        await _context.InvoicePrintIdempotencyRecords.AddAsync(record, cancellationToken);
+
+        try
+        {
+            await SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException exception) when (IsUniqueConstraintViolation(exception))
+        {
+            _context.Entry(record).State = EntityState.Detached;
+            return false;
+        }
+    }
+
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         if (string.Equals(_context.Database.ProviderName, "Microsoft.EntityFrameworkCore.InMemory", StringComparison.Ordinal))
@@ -93,5 +120,22 @@ public class InvoiceRepository : IInvoiceRepository
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IAppTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.Equals(_context.Database.ProviderName, "Microsoft.EntityFrameworkCore.InMemory", StringComparison.Ordinal))
+        {
+            return new NoOpTransaction();
+        }
+
+        var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        return new EfCoreTransactionWrapper(transaction);
+    }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException exception)
+    {
+        return exception.InnerException is PostgresException postgresException
+            && postgresException.SqlState == PostgresErrorCodes.UniqueViolation;
     }
 }

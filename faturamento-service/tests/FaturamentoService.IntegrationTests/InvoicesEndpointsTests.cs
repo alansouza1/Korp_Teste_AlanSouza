@@ -188,6 +188,56 @@ public class InvoicesEndpointsTests
     }
 
     [Fact]
+    public async Task PrintInvoice_WithSameIdempotencyKey_ShouldNotProcessTwice()
+    {
+        await using var factory = new FaturamentoApiFactory();
+        using var client = factory.CreateClient();
+
+        var fakeStockClient = factory.GetFakeStockClient();
+        fakeStockClient.ValidateHandler = (items, _) => Task.FromResult(new StockValidationResultDto
+        {
+            IsValid = true,
+            Items = items.Select(x => new StockItemAvailabilityDto
+            {
+                ProductCode = x.ProductCode,
+                RequestedQuantity = x.Quantity,
+                AvailableQuantity = x.Quantity,
+                IsAvailable = true,
+                Message = "Stock available."
+            }).ToList()
+        });
+
+        var invoice = await CreateInvoiceWithItemAsync(client);
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/invoices/{invoice.Id}/print");
+        request.Headers.Add("X-Idempotency-Key", "print-key-001");
+
+        var firstResponse = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var secondRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/invoices/{invoice.Id}/print");
+        secondRequest.Headers.Add("X-Idempotency-Key", "print-key-001");
+
+        var secondResponse = await client.SendAsync(secondRequest);
+        Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
+
+        var firstBody = await firstResponse.Content.ReadFromJsonAsync<PrintInvoiceResponse>();
+        var secondBody = await secondResponse.Content.ReadFromJsonAsync<PrintInvoiceResponse>();
+
+        Assert.NotNull(firstBody);
+        Assert.NotNull(secondBody);
+        Assert.Equal(firstBody.Message, secondBody.Message);
+        Assert.Equal(firstBody.Invoice.Status, secondBody.Invoice.Status);
+        Assert.Equal(1, fakeStockClient.DebitCalls);
+
+        var invoiceResponse = await client.GetAsync($"/api/invoices/{invoice.Id}");
+        var invoiceBody = await invoiceResponse.Content.ReadFromJsonAsync<InvoiceResponse>();
+
+        Assert.NotNull(invoiceBody);
+        Assert.Equal("CLOSED", invoiceBody.Status);
+        Assert.Equal(1, invoiceBody.PrintAttempts);
+    }
+
+    [Fact]
     public async Task PrintClosedInvoice_ShouldReturnConflict()
     {
         await using var factory = new FaturamentoApiFactory();

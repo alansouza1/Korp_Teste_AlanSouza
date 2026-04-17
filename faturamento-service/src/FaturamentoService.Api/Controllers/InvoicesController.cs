@@ -51,9 +51,23 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpPost("{id:guid}/print")]
-    public async Task<IActionResult> Print(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Print(
+        Guid id,
+        [FromHeader(Name = "X-Idempotency-Key")] string? idempotencyKey,
+        CancellationToken cancellationToken)
     {
-        var response = await _invoiceService.PrintAsync(id, cancellationToken);
-        return Ok(response);
+        if (!string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            var response = await _invoiceService.PrintIdempotentAsync(id, idempotencyKey, cancellationToken);
+            return new ContentResult
+            {
+                StatusCode = response.StatusCode,
+                ContentType = "application/json",
+                Content = response.ResponseJson
+            };
+        }
+
+        var printResponse = await _invoiceService.PrintAsync(id, cancellationToken);
+        return Ok(printResponse);
     }
 }

@@ -80,6 +80,7 @@ Essa separação reforça o isolamento entre domínios e evita acoplamento indev
 - Validação e baixa de estoque durante a emissão
 - Fechamento automático da nota em caso de sucesso
 - Manutenção da nota como **Aberta** em caso de falha
+- Idempotência na emissão com `X-Idempotency-Key`
 - Simulação de falha com o código `ERRO500`
 - Feedback amigável de erros no frontend
 
@@ -118,6 +119,27 @@ Objetivos:
 - aumentar resiliência em falhas momentâneas
 - evitar retry em erros funcionais, como produto inexistente ou estoque insuficiente
 - manter o comportamento previsível do fluxo de negócio
+
+## Idempotência na Emissão
+
+Como melhoria opcional, o endpoint `POST /api/invoices/{id}/print` aceita o header `X-Idempotency-Key`.
+
+Quando a mesma nota é emitida novamente com a mesma chave:
+- o fluxo de emissão não é processado uma segunda vez
+- o estoque não sofre nova baixa
+- a nota não é fechada novamente
+- a resposta anterior é reutilizada com segurança
+
+Essa abordagem protege o cenário clássico de retry do cliente ou reenvio acidental da mesma operação crítica.
+
+### Como demonstrar
+
+1. Crie uma nota fiscal com item válido.
+2. Envie `POST /api/invoices/{id}/print` com o header `X-Idempotency-Key: print-key-001`.
+3. Repita a mesma chamada com a mesma chave.
+4. A segunda resposta será reaproveitada sem novo débito de estoque.
+
+Essa proteção também está coberta por teste de integração no `faturamento-service`.
 
 ## Tratamento de Concorrência
 
@@ -196,6 +218,7 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 - `GET /api/invoices/number/{number}`
 - `POST /api/invoices/{id}/items`
 - `POST /api/invoices/{id}/print`
+  Header opcional: `X-Idempotency-Key`
 
 ## Destaques do Frontend
 
@@ -216,6 +239,7 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 - Polly para resiliência em integrações externas
 - Serilog para observabilidade e troubleshooting
 - Docker Compose para facilitar execução local e demonstração do ambiente completo
+- Idempotência persistida na emissão de nota para evitar efeitos colaterais em retries
 - Angular Material para acelerar entrega com boa base visual e consistência de componentes
 
 ## Limitações e Melhorias Futuras

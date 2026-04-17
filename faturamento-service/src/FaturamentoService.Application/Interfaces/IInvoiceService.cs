@@ -11,4 +11,5 @@ public interface IInvoiceService
     Task<InvoiceResponseDto> GetBySequentialNumberAsync(int sequentialNumber, CancellationToken cancellationToken = default);
     Task<InvoiceResponseDto> AddItemsAsync(Guid invoiceId, AddInvoiceItemsRequestDto request, CancellationToken cancellationToken = default);
     Task<PrintInvoiceResponseDto> PrintAsync(Guid invoiceId, CancellationToken cancellationToken = default);
+    Task<IdempotentPrintResponseDto> PrintIdempotentAsync(Guid invoiceId, string idempotencyKey, CancellationToken cancellationToken = default);
 }
