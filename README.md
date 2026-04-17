@@ -1,6 +1,6 @@
-# Sistema de Emissão de Notas Fiscais
+# Sistema de Emissão de Notas Fiscais 🧾
 
-Sistema full stack desenvolvido como desafio técnico, com foco em arquitetura de microsserviços, regras de negócio bem definidas, integração entre serviços e uma interface web moderna para operação do fluxo de emissão de notas fiscais. 🚀
+Sistema full stack desenvolvido como desafio técnico, com foco em arquitetura de microsserviços, regras de negócio consistentes e integração resiliente entre serviços. 🚀
 
 ## Visão Geral
 
@@ -107,6 +107,8 @@ Nessa situação:
 - o estoque não é baixado
 - o erro é registrado
 - o frontend apresenta uma mensagem amigável ao usuário
+
+Esse cenário demonstra a capacidade do sistema de lidar com falhas sem comprometer a consistência do negócio.
 
 ### Retry com Polly
 
