@@ -145,7 +145,7 @@ public class InvoiceService : IInvoiceService
             return new PrintInvoiceResponseDto
             {
                 Success = true,
-                Message = "Invoice printed successfully.",
+                Message = "Nota fiscal emitida com sucesso.",
                 Invoice = invoice.ToResponse()
             };
         }
