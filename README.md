@@ -1,0 +1,209 @@
+# Sistema de Emissão de Notas Fiscais
+
+Sistema full stack desenvolvido como desafio técnico, com foco em arquitetura de microsserviços, regras de negócio bem definidas, integração entre serviços e uma interface web moderna para operação do fluxo de emissão de notas fiscais. 🚀
+
+## Visão Geral
+
+O projeto simula um cenário real de emissão de notas fiscais com controle de estoque e faturamento desacoplados.
+
+O backend foi dividido em dois microsserviços independentes:
+- `estoque-service`: responsável por produtos, saldo em estoque e validações de disponibilidade
+- `faturamento-service`: responsável por notas fiscais, itens, impressão/emissão e integração com o estoque
+
+O frontend em Angular centraliza a operação do sistema em uma interface única, permitindo cadastrar produtos, acompanhar notas fiscais e executar o fluxo completo de emissão com feedback visual amigável.
+
+## Arquitetura
+
+### Microsserviços
+
+**estoque-service**
+- Gerencia o cadastro de produtos
+- Atualiza descrição de produtos
+- Executa atualização administrativa de estoque
+- Valida disponibilidade
+- Realiza baixa de estoque durante a emissão da nota
+
+**faturamento-service**
+- Cria notas fiscais com numeração sequencial
+- Permite inclusão de itens apenas em notas abertas
+- Consulta notas por ID e por número sequencial
+- Executa a emissão da nota fiscal
+- Orquestra validação e baixa de estoque via `estoque-service`
+
+### Frontend
+
+O `frontend-angular` atua como camada de apresentação da solução:
+- consome os dois microsserviços
+- organiza os fluxos de produtos e notas fiscais
+- exibe estados de carregamento, mensagens de sucesso e tratamento amigável de erros
+- impede ações inválidas na interface, como editar ou emitir notas já fechadas
+
+### Banco de Dados
+
+O PostgreSQL é utilizado como banco relacional da aplicação. Cada microsserviço possui seu próprio banco lógico:
+- `estoque_db`
+- `faturamento_db`
+
+Essa separação reforça o isolamento entre domínios e evita acoplamento indevido entre os serviços.
+
+## Tecnologias Utilizadas
+
+### Backend
+- ASP.NET Core Web API (.NET 8)
+- Entity Framework Core
+- PostgreSQL
+- FluentValidation
+- Serilog
+- Polly
+
+### Frontend
+- Angular 19
+- Angular Material
+- RxJS
+- Reactive Forms
+
+### Infraestrutura
+- Docker
+- Docker Compose
+- Nginx
+
+## Funcionalidades
+
+- Cadastro de produtos
+- Atualização de descrição de produto
+- Atualização administrativa de estoque
+- Consulta de produtos
+- Criação de nota fiscal com numeração sequencial
+- Inclusão de itens apenas quando a nota está **Aberta**
+- Consulta de notas fiscais
+- Emissão de nota fiscal
+- Validação e baixa de estoque durante a emissão
+- Fechamento automático da nota em caso de sucesso
+- Manutenção da nota como **Aberta** em caso de falha
+- Simulação de falha com o código `ERRO500`
+- Feedback amigável de erros no frontend
+
+## Fluxo Principal do Sistema
+
+1. O usuário cadastra um produto no `estoque-service`.
+2. O usuário cria uma nova nota fiscal no `faturamento-service`.
+3. Enquanto a nota estiver **Aberta**, itens podem ser adicionados.
+4. Ao emitir a nota, o `faturamento-service` consulta o `estoque-service`.
+5. O estoque é validado item a item.
+6. Se houver saldo suficiente, a baixa é realizada.
+7. Após a baixa com sucesso, a nota é fechada.
+8. Se ocorrer erro de estoque ou falha de integração, a nota permanece **Aberta**.
+9. O frontend exibe o resultado da operação com mensagem de sucesso ou erro.
+
+## Tratamento de Falhas
+
+### Cenário `ERRO500`
+
+Quando um item possui o código `ERRO500`, o sistema simula uma falha no fluxo de estoque. Esse cenário foi incluído para demonstrar comportamento resiliente da aplicação.
+
+Nessa situação:
+- a emissão falha
+- a nota fiscal não é fechada
+- o estoque não é baixado
+- o erro é registrado
+- o frontend apresenta uma mensagem amigável ao usuário
+
+### Retry com Polly
+
+O `faturamento-service` utiliza Polly para retry apenas em falhas transitórias na comunicação com o `estoque-service`.
+
+Objetivos:
+- aumentar resiliência em falhas momentâneas
+- evitar retry em erros funcionais, como produto inexistente ou estoque insuficiente
+- manter o comportamento previsível do fluxo de negócio
+
+## Estrutura do Projeto
+
+```text
+.
+├── docker/
+│   └── postgres/
+├── estoque-service/
+│   ├── src/
+│   └── tests/
+├── faturamento-service/
+│   ├── src/
+│   └── tests/
+├── frontend-angular/
+│   ├── public/
+│   └── src/
+├── docker-compose.yml
+└── README.md
+```
+
+## Como Executar com Docker
+
+### Subir a stack completa
+
+```bash
+docker-compose up --build
+```
+
+### URLs da aplicação
+
+- Frontend: http://localhost:4200
+- Estoque Swagger: http://localhost:5001/swagger
+- Faturamento Swagger: http://localhost:5002/swagger
+
+## Principais Endpoints da API
+
+### Estoque Service
+- `POST /api/products`
+- `GET /api/products`
+- `GET /api/products/{id}`
+- `GET /api/products/code/{code}`
+- `PUT /api/products/{id}`
+- `PATCH /api/products/{id}/stock`
+
+### Faturamento Service
+- `POST /api/invoices`
+- `GET /api/invoices`
+- `GET /api/invoices/{id}`
+- `GET /api/invoices/number/{number}`
+- `POST /api/invoices/{id}/items`
+- `POST /api/invoices/{id}/print`
+
+## Destaques do Frontend
+
+- Interface construída com Angular 19 e Angular Material
+- Estrutura organizada por páginas, serviços, modelos e camada compartilhada
+- Reactive Forms para entradas e validações
+- Uso de RxJS com `switchMap`, `catchError`, `finalize` e fluxo reativo de atualização
+- Indicadores de carregamento para ações críticas
+- Snackbar para feedback de sucesso e erro
+- Regras visuais para bloquear ações em notas fiscais fechadas
+- Frontend containerizado e servido por Nginx
+
+## Decisões Técnicas
+
+- Separação por microsserviços para isolar responsabilidades de estoque e faturamento
+- Arquitetura em camadas no backend para manter controllers enxutos e regras de negócio centralizadas em services
+- PostgreSQL como banco relacional consistente para os dois domínios
+- Polly para resiliência em integrações externas
+- Serilog para observabilidade e troubleshooting
+- Docker Compose para facilitar execução local e demonstração do ambiente completo
+- Angular Material para acelerar entrega com boa base visual e consistência de componentes
+
+## Limitações e Melhorias Futuras
+
+- Autenticação e autorização
+- Observabilidade centralizada com tracing distribuído
+- Pipeline CI/CD
+- Testes frontend mais amplos além da suíte unitária mínima
+- Monitoramento de saúde entre serviços
+- Configuração de ambiente mais avançada para produção
+- Estratégia de versionamento e documentação de API com contrato mais formal
+
+## Autor
+
+**Alan Souza**  
+Projeto desenvolvido como desafio técnico, com foco em boas práticas de arquitetura, integração entre serviços e experiência de uso.
+
+---
+
+README pronto para uso no GitHub. ✅

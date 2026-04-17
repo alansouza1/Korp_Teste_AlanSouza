@@ -45,7 +45,7 @@ export class InvoicesPageComponent {
         finalize(() => (this.loading = false)),
         catchError((error) => {
           this.loading = false;
-          this.openError(getApiErrorMessage(error, 'Unable to load invoices.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível carregar as notas fiscais.'));
           return EMPTY;
         })
       )
@@ -62,12 +62,12 @@ export class InvoicesPageComponent {
       .pipe(
         finalize(() => (this.creating = false)),
         catchError((error) => {
-          this.openError(getApiErrorMessage(error, 'Unable to create invoice.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível criar a nota fiscal.'));
           return EMPTY;
         })
       )
       .subscribe((invoice) => {
-        this.openSuccess(`Invoice #${invoice.sequentialNumber} created.`);
+        this.openSuccess(`Nota Fiscal #${invoice.sequentialNumber} criada com sucesso.`);
         this.refresh();
       });
   }
@@ -82,10 +82,10 @@ export class InvoicesPageComponent {
   }
 
   private openSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 3500 });
+    this.snackBar.open(message, 'Fechar', { duration: 3500 });
   }
 
   private openError(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['snackbar-error'] });
+    this.snackBar.open(message, 'Fechar', { duration: 5000, panelClass: ['snackbar-error'] });
   }
 }

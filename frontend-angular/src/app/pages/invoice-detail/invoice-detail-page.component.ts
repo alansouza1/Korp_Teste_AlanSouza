@@ -69,7 +69,7 @@ export class InvoiceDetailPageComponent {
             tap(() => (this.loading = false)),
             catchError((error) => {
               this.loading = false;
-              this.openError(getApiErrorMessage(error, 'Unable to load invoice details.'));
+              this.openError(getApiErrorMessage(error, 'Não foi possível carregar os detalhes da nota fiscal.'));
               return EMPTY;
             })
           )
@@ -110,13 +110,13 @@ export class InvoiceDetailPageComponent {
       .pipe(
         finalize(() => (this.addingItem = false)),
         catchError((error) => {
-          this.openError(getApiErrorMessage(error, 'Unable to add invoice item.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível adicionar o item da nota fiscal.'));
           return EMPTY;
         })
       )
       .subscribe(() => {
         this.addItemForm.reset({ productCode: '', productDescription: '', quantity: 1 });
-        this.openSuccess('Item added to invoice.');
+        this.openSuccess('Item adicionado a nota fiscal.');
         this.invoicesApi.requestRefresh();
         this.refreshSubject.next();
       });
@@ -134,7 +134,7 @@ export class InvoiceDetailPageComponent {
         finalize(() => (this.printing = false)),
         catchError((error) => {
           this.openError(
-            getApiErrorMessage(error, 'Unable to print invoice right now. Please try again later.')
+            getApiErrorMessage(error, 'Não foi possível emitir a nota fiscal agora. Tente novamente mais tarde.')
           );
           this.invoicesApi.requestRefresh();
           this.refreshSubject.next();
@@ -149,10 +149,10 @@ export class InvoiceDetailPageComponent {
   }
 
   private openSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 3500 });
+    this.snackBar.open(message, 'Fechar', { duration: 3500 });
   }
 
   private openError(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['snackbar-error'] });
+    this.snackBar.open(message, 'Fechar', { duration: 5000, panelClass: ['snackbar-error'] });
   }
 }

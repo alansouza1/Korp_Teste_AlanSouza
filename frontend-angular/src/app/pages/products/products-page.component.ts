@@ -69,7 +69,7 @@ export class ProductsPageComponent {
         tap(() => (this.loadingList = false)),
         catchError((error) => {
           this.loadingList = false;
-          this.openError(getApiErrorMessage(error, 'Unable to load products.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível carregar os produtos.'));
           return EMPTY;
         })
       )
@@ -120,13 +120,13 @@ export class ProductsPageComponent {
       .pipe(
         finalize(() => (this.creating = false)),
         catchError((error) => {
-          this.openError(getApiErrorMessage(error, 'Unable to create product.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível cadastrar o produto.'));
           return EMPTY;
         })
       )
       .subscribe((product) => {
         this.createForm.reset({ code: '', description: '', stockQuantity: 0 });
-        this.openSuccess(`Product ${product.code} created successfully.`);
+        this.openSuccess(`Produto ${product.code} cadastrado com sucesso.`);
         this.refreshProducts();
       });
   }
@@ -147,12 +147,12 @@ export class ProductsPageComponent {
       .pipe(
         finalize(() => (this.savingDescription = false)),
         catchError((error) => {
-          this.openError(getApiErrorMessage(error, 'Unable to update product description.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível atualizar a descrição do produto.'));
           return EMPTY;
         })
       )
       .subscribe((product) => {
-        this.openSuccess(`Description updated for ${product.code}.`);
+        this.openSuccess(`Descrição atualizada para ${product.code}.`);
         this.selectProduct(product);
         this.refreshProducts();
       });
@@ -174,22 +174,22 @@ export class ProductsPageComponent {
       .pipe(
         finalize(() => (this.savingStock = false)),
         catchError((error) => {
-          this.openError(getApiErrorMessage(error, 'Unable to update administrative stock.'));
+          this.openError(getApiErrorMessage(error, 'Não foi possível atualizar o estoque administrativo.'));
           return EMPTY;
         })
       )
       .subscribe((product) => {
-        this.openSuccess(`Stock updated for ${product.code}.`);
+        this.openSuccess(`Estoque atualizado para ${product.code}.`);
         this.selectProduct(product);
         this.refreshProducts();
       });
   }
 
   private openSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 3500 });
+    this.snackBar.open(message, 'Fechar', { duration: 3500 });
   }
 
   private openError(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['snackbar-error'] });
+    this.snackBar.open(message, 'Fechar', { duration: 5000, panelClass: ['snackbar-error'] });
   }
 }
