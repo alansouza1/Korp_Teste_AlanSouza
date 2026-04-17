@@ -17,6 +17,26 @@
           <input matInput formControlName="description" />
         </mat-form-field>
 
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="suggestCreateDescription()"
+          [disabled]="suggestingCreateDescription || createForm.controls.code.invalid"
+        >
+          @if (suggestingCreateDescription) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <span>Sugerir descrição com IA</span>
+          }
+        </button>
+
+        @if (createSuggestedDescription) {
+          <div class="suggestion-card">
+            <p><strong>Sugestão:</strong> {{ createSuggestedDescription }}</p>
+            <button mat-button color="primary" type="button" (click)="applyCreateSuggestion()">Usar sugestão</button>
+          </div>
+        }
+
         <mat-form-field appearance="outline">
           <mat-label>Estoque inicial</mat-label>
           <input matInput type="number" formControlName="stockQuantity" />
@@ -118,6 +138,24 @@
             <mat-label>Descrição</mat-label>
             <input matInput formControlName="description" />
           </mat-form-field>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="suggestEditDescription()"
+            [disabled]="suggestingEditDescription"
+          >
+            @if (suggestingEditDescription) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <span>Sugerir descrição com IA</span>
+            }
+          </button>
+          @if (editSuggestedDescription) {
+            <div class="suggestion-card">
+              <p><strong>Sugestão:</strong> {{ editSuggestedDescription }}</p>
+              <button mat-button color="primary" type="button" (click)="applyEditSuggestion()">Usar sugestão</button>
+            </div>
+          }
           <button mat-flat-button color="primary" type="submit" [disabled]="savingDescription">
             Salvar descrição
           </button>

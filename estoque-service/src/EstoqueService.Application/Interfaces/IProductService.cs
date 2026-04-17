@@ -6,6 +6,7 @@ namespace EstoqueService.Application.Interfaces;
 public interface IProductService
 {
     Task<ProductResponseDto> CreateAsync(CreateProductRequestDto request, CancellationToken cancellationToken = default);
+    Task<SuggestProductDescriptionResponseDto> SuggestDescriptionAsync(SuggestProductDescriptionRequestDto request, CancellationToken cancellationToken = default);
     Task<List<ProductResponseDto>> GetAllAsync(string? code, string? description, CancellationToken cancellationToken = default);
     Task<ProductResponseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ProductResponseDto> GetByCodeAsync(string code, CancellationToken cancellationToken = default);

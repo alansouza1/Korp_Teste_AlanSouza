@@ -9,6 +9,10 @@ import {
   UpdateProductDescriptionRequest,
   UpdateProductStockRequest
 } from '../models/product.models';
+import {
+  SuggestProductDescriptionRequest,
+  SuggestProductDescriptionResponse
+} from '../models/product-description-suggestion.models';
 
 @Injectable({ providedIn: 'root' })
 export class ProductsApiService {
@@ -31,6 +35,10 @@ export class ProductsApiService {
 
   createProduct(payload: CreateProductRequest): Observable<Product> {
     return this.http.post<Product>(this.baseUrl, payload);
+  }
+
+  suggestDescription(payload: SuggestProductDescriptionRequest): Observable<SuggestProductDescriptionResponse> {
+    return this.http.post<SuggestProductDescriptionResponse>(`${this.baseUrl}/description-suggestions`, payload);
   }
 
   updateDescription(productId: string, payload: UpdateProductDescriptionRequest): Observable<Product> {

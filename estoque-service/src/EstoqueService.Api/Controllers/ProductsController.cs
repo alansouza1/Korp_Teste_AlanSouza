@@ -22,6 +22,13 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
+    [HttpPost("description-suggestions")]
+    public async Task<IActionResult> SuggestDescription([FromBody] SuggestProductDescriptionRequestDto request, CancellationToken cancellationToken)
+    {
+        var response = await _productService.SuggestDescriptionAsync(request, cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? code, [FromQuery] string? description, CancellationToken cancellationToken)
     {

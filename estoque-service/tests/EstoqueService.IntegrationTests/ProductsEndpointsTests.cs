@@ -56,6 +56,26 @@ public class ProductsEndpointsTests
     }
 
     [Fact]
+    public async Task SuggestDescription_ShouldReturnDeterministicSuggestion()
+    {
+        await using var factory = new EstoqueApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsJsonAsync("/api/products/description-suggestions", new
+        {
+            code = "NOTE-001",
+            partialDescription = "Notebook"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<SuggestDescriptionResponse>();
+        Assert.NotNull(body);
+        Assert.Contains("Notebook", body.SuggestedDescription, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("corporativo", body.SuggestedDescription, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task ValidateStock_ShouldReturnAvailabilityPerItem()
     {
         await using var factory = new EstoqueApiFactory();
@@ -167,6 +187,11 @@ public class ProductsEndpointsTests
     {
         public bool Success { get; set; }
         public List<ProductResponse> UpdatedProducts { get; set; } = [];
+    }
+
+    private sealed class SuggestDescriptionResponse
+    {
+        public string SuggestedDescription { get; set; } = string.Empty;
     }
 
     private sealed class ErrorResponse

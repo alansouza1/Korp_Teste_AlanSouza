@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddValidatorsFromAssemblyContaining<CreateProductRequestValidator>();
+        services.AddScoped<IProductDescriptionSuggestionService, DeterministicProductDescriptionSuggestionService>();
         services.AddScoped<IProductService, ProductService>();
 
         return services;

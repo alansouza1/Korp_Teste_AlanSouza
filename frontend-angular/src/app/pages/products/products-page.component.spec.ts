@@ -32,6 +32,7 @@ describe('ProductsPageComponent', () => {
   beforeEach(async () => {
     productsApiSpy = jasmine.createSpyObj<ProductsApiService>('ProductsApiService', [
       'getProducts',
+      'suggestDescription',
       'createProduct',
       'updateDescription',
       'updateStock'

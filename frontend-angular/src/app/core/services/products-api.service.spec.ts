@@ -41,4 +41,21 @@ describe('ProductsApiService', () => {
       updatedAt: '2026-04-16T10:10:00Z'
     });
   });
+
+  it('should call the description suggestion endpoint using POST', () => {
+    const payload = { code: 'NOTE-001', partialDescription: 'Notebook' };
+
+    service.suggestDescription(payload).subscribe();
+
+    const request = httpMock.expectOne(
+      'http://localhost:5001/api/products/description-suggestions'
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+
+    request.flush({
+      suggestedDescription: 'Notebook corporativo NOTE-001'
+    });
+  });
 });

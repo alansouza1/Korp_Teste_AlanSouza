@@ -15,7 +15,9 @@ public class ProductService : IProductService
     private const string SimulatedFailureCode = "ERRO500";
 
     private readonly IProductRepository _productRepository;
+    private readonly IProductDescriptionSuggestionService _productDescriptionSuggestionService;
     private readonly IValidator<CreateProductRequestDto> _createValidator;
+    private readonly IValidator<SuggestProductDescriptionRequestDto> _suggestDescriptionValidator;
     private readonly IValidator<UpdateProductRequestDto> _updateValidator;
     private readonly IValidator<UpdateStockRequestDto> _stockValidator;
     private readonly IValidator<ValidateStockRequestDto> _validateStockValidator;
@@ -24,7 +26,9 @@ public class ProductService : IProductService
 
     public ProductService(
         IProductRepository productRepository,
+        IProductDescriptionSuggestionService productDescriptionSuggestionService,
         IValidator<CreateProductRequestDto> createValidator,
+        IValidator<SuggestProductDescriptionRequestDto> suggestDescriptionValidator,
         IValidator<UpdateProductRequestDto> updateValidator,
         IValidator<UpdateStockRequestDto> stockValidator,
         IValidator<ValidateStockRequestDto> validateStockValidator,
@@ -32,7 +36,9 @@ public class ProductService : IProductService
         ILogger<ProductService> logger)
     {
         _productRepository = productRepository;
+        _productDescriptionSuggestionService = productDescriptionSuggestionService;
         _createValidator = createValidator;
+        _suggestDescriptionValidator = suggestDescriptionValidator;
         _updateValidator = updateValidator;
         _stockValidator = stockValidator;
         _validateStockValidator = validateStockValidator;
@@ -57,6 +63,26 @@ public class ProductService : IProductService
         _logger.LogInformation("Product {ProductCode} created with id {ProductId}", product.Code, product.Id);
 
         return product.ToResponse();
+    }
+
+    public async Task<SuggestProductDescriptionResponseDto> SuggestDescriptionAsync(
+        SuggestProductDescriptionRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        await ValidateAsync(_suggestDescriptionValidator, request, cancellationToken);
+
+        var normalizedCode = request.Code.Trim().ToUpperInvariant();
+        var suggestedDescription = await _productDescriptionSuggestionService.SuggestAsync(
+            normalizedCode,
+            request.PartialDescription,
+            cancellationToken);
+
+        _logger.LogInformation("Generated description suggestion for product code {ProductCode}", normalizedCode);
+
+        return new SuggestProductDescriptionResponseDto
+        {
+            SuggestedDescription = suggestedDescription
+        };
     }
 
     public async Task<List<ProductResponseDto>> GetAllAsync(string? code, string? description, CancellationToken cancellationToken = default)

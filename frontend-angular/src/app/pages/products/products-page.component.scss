@@ -52,6 +52,20 @@
   color: #153b35;
 }
 
+.suggestion-card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 16px;
+  border: 1px dashed rgba(21, 59, 53, 0.22);
+  background: #f2f7f4;
+}
+
+.suggestion-card p {
+  margin: 0;
+  color: #214942;
+}
+
 .empty-state {
   display: grid;
   place-items: center;

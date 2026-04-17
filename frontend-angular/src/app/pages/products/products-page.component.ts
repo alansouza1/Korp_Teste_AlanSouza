@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -38,6 +38,7 @@ export class ProductsPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly productsApi = inject(ProductsApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly refreshSubject = new Subject<void>();
 
@@ -78,9 +79,13 @@ export class ProductsPageComponent {
 
   loadingList = true;
   creating = false;
+  suggestingCreateDescription = false;
+  suggestingEditDescription = false;
   savingDescription = false;
   savingStock = false;
   selectedProduct: Product | null = null;
+  createSuggestedDescription = '';
+  editSuggestedDescription = '';
 
   constructor() {
     this.filterForm.valueChanges
@@ -88,6 +93,24 @@ export class ProductsPageComponent {
       .subscribe(() => {
         this.loadingList = true;
         this.refreshSubject.next();
+      });
+
+    this.createForm.controls.code.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.createSuggestedDescription = '';
+      });
+
+    this.createForm.controls.description.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.createSuggestedDescription = '';
+      });
+
+    this.editDescriptionForm.controls.description.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.editSuggestedDescription = '';
       });
   }
 
@@ -100,12 +123,14 @@ export class ProductsPageComponent {
     this.selectedProduct = product;
     this.editDescriptionForm.patchValue({ description: product.description });
     this.stockForm.patchValue({ stockQuantity: product.stockQuantity });
+    this.editSuggestedDescription = '';
   }
 
   clearSelection(): void {
     this.selectedProduct = null;
     this.editDescriptionForm.reset({ description: '' });
     this.stockForm.reset({ stockQuantity: 0 });
+    this.editSuggestedDescription = '';
   }
 
   createProduct(): void {
@@ -118,17 +143,62 @@ export class ProductsPageComponent {
     this.productsApi
       .createProduct(this.createForm.getRawValue())
       .pipe(
-        finalize(() => (this.creating = false)),
+        finalize(() => {
+          this.creating = false;
+          this.cdr.markForCheck();
+        }),
         catchError((error) => {
           this.openError(getApiErrorMessage(error, 'Não foi possível cadastrar o produto.'));
+          this.cdr.markForCheck();
           return EMPTY;
         })
       )
       .subscribe((product) => {
         this.createForm.reset({ code: '', description: '', stockQuantity: 0 });
+        this.createSuggestedDescription = '';
         this.openSuccess(`Produto ${product.code} cadastrado com sucesso.`);
         this.refreshProducts();
+        this.cdr.markForCheck();
       });
+  }
+
+  suggestCreateDescription(): void {
+    const codeControl = this.createForm.controls.code;
+    if (codeControl.invalid) {
+      codeControl.markAsTouched();
+      return;
+    }
+
+    this.suggestingCreateDescription = true;
+    this.productsApi
+      .suggestDescription({
+        code: this.createForm.controls.code.getRawValue(),
+        partialDescription: this.createForm.controls.description.getRawValue()
+      })
+      .pipe(
+        finalize(() => {
+          this.suggestingCreateDescription = false;
+          this.cdr.markForCheck();
+        }),
+        catchError((error) => {
+          this.openError(getApiErrorMessage(error, 'Não foi possível gerar uma sugestão de descrição.'));
+          this.cdr.markForCheck();
+          return EMPTY;
+        })
+      )
+      .subscribe((response) => {
+        this.createSuggestedDescription = response.suggestedDescription;
+        this.openSuccess('Sugestão de descrição gerada com IA.');
+        this.cdr.markForCheck();
+      });
+  }
+
+  applyCreateSuggestion(): void {
+    if (!this.createSuggestedDescription) {
+      return;
+    }
+
+    this.createForm.patchValue({ description: this.createSuggestedDescription });
   }
 
   saveDescription(): void {
@@ -145,9 +215,13 @@ export class ProductsPageComponent {
     this.productsApi
       .updateDescription(this.selectedProduct.id, this.editDescriptionForm.getRawValue())
       .pipe(
-        finalize(() => (this.savingDescription = false)),
+        finalize(() => {
+          this.savingDescription = false;
+          this.cdr.markForCheck();
+        }),
         catchError((error) => {
           this.openError(getApiErrorMessage(error, 'Não foi possível atualizar a descrição do produto.'));
+          this.cdr.markForCheck();
           return EMPTY;
         })
       )
@@ -155,7 +229,45 @@ export class ProductsPageComponent {
         this.openSuccess(`Descrição atualizada para ${product.code}.`);
         this.selectProduct(product);
         this.refreshProducts();
+        this.cdr.markForCheck();
       });
+  }
+
+  suggestEditDescription(): void {
+    if (!this.selectedProduct) {
+      return;
+    }
+
+    this.suggestingEditDescription = true;
+    this.productsApi
+      .suggestDescription({
+        code: this.selectedProduct.code,
+        partialDescription: this.editDescriptionForm.controls.description.getRawValue()
+      })
+      .pipe(
+        finalize(() => {
+          this.suggestingEditDescription = false;
+          this.cdr.markForCheck();
+        }),
+        catchError((error) => {
+          this.openError(getApiErrorMessage(error, 'Não foi possível gerar uma sugestão de descrição.'));
+          this.cdr.markForCheck();
+          return EMPTY;
+        })
+      )
+      .subscribe((response) => {
+        this.editSuggestedDescription = response.suggestedDescription;
+        this.openSuccess('Sugestão de descrição gerada com IA.');
+        this.cdr.markForCheck();
+      });
+  }
+
+  applyEditSuggestion(): void {
+    if (!this.editSuggestedDescription) {
+      return;
+    }
+
+    this.editDescriptionForm.patchValue({ description: this.editSuggestedDescription });
   }
 
   saveStock(): void {
@@ -172,9 +284,13 @@ export class ProductsPageComponent {
     this.productsApi
       .updateStock(this.selectedProduct.id, this.stockForm.getRawValue())
       .pipe(
-        finalize(() => (this.savingStock = false)),
+        finalize(() => {
+          this.savingStock = false;
+          this.cdr.markForCheck();
+        }),
         catchError((error) => {
           this.openError(getApiErrorMessage(error, 'Não foi possível atualizar o estoque administrativo.'));
+          this.cdr.markForCheck();
           return EMPTY;
         })
       )
@@ -182,6 +298,7 @@ export class ProductsPageComponent {
         this.openSuccess(`Estoque atualizado para ${product.code}.`);
         this.selectProduct(product);
         this.refreshProducts();
+        this.cdr.markForCheck();
       });
   }
 

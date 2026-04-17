@@ -72,6 +72,7 @@ Essa separação reforça o isolamento entre domínios e evita acoplamento indev
 - Cadastro de produtos
 - Atualização de descrição de produto
 - Atualização administrativa de estoque
+- Sugestão assistida de descrição de produto com IA
 - Consulta de produtos
 - Criação de nota fiscal com numeração sequencial
 - Inclusão de itens apenas quando a nota está **Aberta**
@@ -164,6 +165,29 @@ docker-compose up -d postgres
 env ENABLE_POSTGRES_CONCURRENCY_TESTS=true dotnet test estoque-service/tests/EstoqueService.IntegrationTests/EstoqueService.IntegrationTests.csproj --filter ProductConcurrencyTests -v minimal
 ```
 
+## Sugestão de Descrição com IA
+
+Como melhoria opcional, o `estoque-service` expõe um endpoint para sugerir descrições de produto a partir do código e de uma descrição parcial.
+
+Fluxo:
+- o usuário informa o código do produto
+- opcionalmente escreve uma descrição inicial
+- clica em `Sugerir descrição com IA`
+- o sistema retorna uma sugestão pronta para uso no formulário
+
+A implementação foi mantida simples e segura para o desafio:
+- interface dedicada para geração de descrição
+- estratégia determinística atual, fácil de demonstrar
+- estrutura pronta para futura substituição por um provider real de LLM
+
+### Como demonstrar
+
+1. Acesse a tela de produtos.
+2. Preencha um código como `NOTE-001`.
+3. Informe uma descrição parcial, como `Notebook`, ou deixe o campo vazio.
+4. Clique em `Sugerir descrição com IA`.
+5. Mostre a sugestão retornada e use o botão para aplicar no formulário.
+
 ## Estrutura do Projeto
 
 ```text
@@ -205,6 +229,7 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 
 ### Estoque Service
 - `POST /api/products`
+- `POST /api/products/description-suggestions`
 - `GET /api/products`
 - `GET /api/products/{id}`
 - `GET /api/products/code/{code}`
@@ -240,6 +265,7 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 - Serilog para observabilidade e troubleshooting
 - Docker Compose para facilitar execução local e demonstração do ambiente completo
 - Idempotência persistida na emissão de nota para evitar efeitos colaterais em retries
+- Serviço de sugestão de descrição desacoplado, pronto para troca por IA real no futuro
 - Angular Material para acelerar entrega com boa base visual e consistência de componentes
 
 ## Limitações e Melhorias Futuras
