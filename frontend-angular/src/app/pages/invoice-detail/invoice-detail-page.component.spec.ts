@@ -5,11 +5,14 @@ import { of } from 'rxjs';
 
 import { Invoice } from '../../core/models/invoice.models';
 import { InvoicesApiService } from '../../core/services/invoices-api.service';
+import { Product } from '../../core/models/product.models';
+import { ProductsApiService } from '../../core/services/products-api.service';
 import { InvoiceDetailPageComponent } from './invoice-detail-page.component';
 
 describe('InvoiceDetailPageComponent', () => {
   let fixture: ComponentFixture<InvoiceDetailPageComponent>;
   let invoicesApiSpy: jasmine.SpyObj<InvoicesApiService>;
+  let productsApiSpy: jasmine.SpyObj<ProductsApiService>;
 
   const closedInvoice: Invoice = {
     id: 'invoice-1',
@@ -31,6 +34,25 @@ describe('InvoiceDetailPageComponent', () => {
     ]
   };
 
+  const products: Product[] = [
+    {
+      id: 'product-1',
+      code: 'P-001',
+      description: 'Notebook corporativo',
+      stockQuantity: 10,
+      createdAt: '2026-04-16T10:00:00Z',
+      updatedAt: '2026-04-16T10:00:00Z'
+    },
+    {
+      id: 'product-2',
+      code: 'M-001',
+      description: 'Mouse sem fio',
+      stockQuantity: 20,
+      createdAt: '2026-04-16T10:00:00Z',
+      updatedAt: '2026-04-16T10:00:00Z'
+    }
+  ];
+
   beforeEach(async () => {
     invoicesApiSpy = jasmine.createSpyObj<InvoicesApiService>('InvoicesApiService', [
       'getInvoiceById',
@@ -38,13 +60,16 @@ describe('InvoiceDetailPageComponent', () => {
       'printInvoice',
       'requestRefresh'
     ]);
+    productsApiSpy = jasmine.createSpyObj<ProductsApiService>('ProductsApiService', ['getProducts']);
     invoicesApiSpy.getInvoiceById.and.returnValue(of(closedInvoice));
+    productsApiSpy.getProducts.and.returnValue(of(products));
 
     await TestBed.configureTestingModule({
       imports: [InvoiceDetailPageComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: InvoicesApiService, useValue: invoicesApiSpy },
+        { provide: ProductsApiService, useValue: productsApiSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -75,5 +100,37 @@ describe('InvoiceDetailPageComponent', () => {
     expect(printButton?.disabled).toBeTrue();
     expect(addItemButton).toBeUndefined();
     expect(fixture.nativeElement.textContent).toContain('Notas fiscais fechadas são somente leitura.');
+  });
+
+  it('should load the product catalog for item selection', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(productsApiSpy.getProducts).toHaveBeenCalled();
+  });
+
+  it('should filter products by code or description', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.productSearchControl.setValue('mouse');
+
+    const filtered = await Promise.resolve(component['filterProducts'](products, 'mouse'));
+
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].code).toBe('M-001');
+  });
+
+  it('should update the item form after selecting a product', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.selectProduct(products[0]);
+
+    expect(component.addItemForm.controls.productCode.getRawValue()).toBe('P-001');
+    expect(component.addItemForm.controls.productDescription.getRawValue()).toBe('Notebook corporativo');
+    expect(component.productSearchControl.getRawValue()).toContain('P-001');
   });
 });

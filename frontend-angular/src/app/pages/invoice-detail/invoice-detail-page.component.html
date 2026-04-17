@@ -57,7 +57,7 @@
             @if (printing) {
               <mat-spinner diameter="18" />
             }
-            Emitir nota fiscal
+            Imprimir nota fiscal
           </button>
         </div>
       </mat-card-content>
@@ -78,14 +78,36 @@
       <mat-card-content>
         @if (invoice.status === 'OPEN') {
           <form class="item-form" [formGroup]="addItemForm" (ngSubmit)="addItem(invoice)">
+            <mat-form-field appearance="outline" class="product-search-field">
+              <mat-label>Buscar produto</mat-label>
+              <input
+                matInput
+                [formControl]="productSearchControl"
+                [matAutocomplete]="productsAutocomplete"
+                placeholder="Pesquise por código ou descrição" />
+              <mat-autocomplete
+                #productsAutocomplete="matAutocomplete"
+                [displayWith]="displayProduct.bind(this)"
+                (optionSelected)="selectProduct($event.option.value)">
+                @for (product of (filteredProducts$ | async) ?? []; track product.id) {
+                  <mat-option [value]="product">
+                    <div class="product-option">
+                      <strong>{{ product.code }}</strong>
+                      <span>{{ product.description }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
             <mat-form-field appearance="outline">
               <mat-label>Código do produto</mat-label>
-              <input matInput formControlName="productCode" />
+              <input matInput formControlName="productCode" readonly />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Descrição do produto</mat-label>
-              <input matInput formControlName="productDescription" />
+              <input matInput formControlName="productDescription" readonly />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -93,10 +115,22 @@
               <input matInput type="number" formControlName="quantity" />
             </mat-form-field>
 
-            <button mat-flat-button color="accent" type="submit" [disabled]="addingItem">
+            <button mat-flat-button color="accent" type="submit" [disabled]="addingItem || productsLoading || !selectedProduct">
               Adicionar item
             </button>
           </form>
+
+          @if (productsLoading) {
+            <mat-progress-bar mode="indeterminate" />
+          }
+
+          @if (!(productsLoading || productsLoadError) && ((products$ | async)?.length ?? 0) === 0) {
+            <p class="helper-text">Nenhum produto cadastrado no estoque.</p>
+          } @else if (!(productsLoading || productsLoadError) && ((filteredProducts$ | async)?.length ?? 0) === 0) {
+            <p class="helper-text">Nenhum produto encontrado para a busca informada.</p>
+          } @else if (!(productsLoading || productsLoadError) && ((filteredProducts$ | async)?.length ?? 0) > 0 && !selectedProduct) {
+            <p class="helper-text">Selecione um produto do catálogo para preencher código e descrição automaticamente.</p>
+          }
         }
 
         <div class="table-wrapper">
