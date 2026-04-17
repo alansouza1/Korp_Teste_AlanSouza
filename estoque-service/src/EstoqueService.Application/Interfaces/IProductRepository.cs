@@ -9,6 +9,7 @@ public interface IProductRepository
     Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Product?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<List<Product>> GetByCodesAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default);
+    Task<List<Product>> GetByCodesForUpdateAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default);
     Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<IAppTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);

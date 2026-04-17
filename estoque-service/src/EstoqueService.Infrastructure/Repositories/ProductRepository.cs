@@ -64,6 +64,37 @@ public class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<List<Product>> GetByCodesForUpdateAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default)
+    {
+        var normalizedCodes = codes
+            .Select(x => x.Trim().ToUpperInvariant())
+            .Distinct()
+            .OrderBy(x => x)
+            .ToArray();
+
+        if (normalizedCodes.Length == 0)
+        {
+            return Task.FromResult(new List<Product>());
+        }
+
+        if (string.Equals(_context.Database.ProviderName, "Microsoft.EntityFrameworkCore.InMemory", StringComparison.Ordinal))
+        {
+            return _context.Products
+                .Where(x => normalizedCodes.Contains(x.Code))
+                .OrderBy(x => x.Code)
+                .ToListAsync(cancellationToken);
+        }
+
+        return _context.Products
+            .FromSqlInterpolated($@"
+                SELECT id, code, description, stock_quantity, created_at, updated_at
+                FROM products
+                WHERE code = ANY ({normalizedCodes})
+                ORDER BY code
+                FOR UPDATE")
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         var normalizedCode = code.Trim().ToUpperInvariant();

@@ -176,7 +176,7 @@ public class ProductService : IProductService
 
         await using var transaction = await _productRepository.BeginTransactionAsync(cancellationToken);
 
-        var products = await _productRepository.GetByCodesAsync(groupedItems.Select(x => x.ProductCode), cancellationToken);
+        var products = await _productRepository.GetByCodesForUpdateAsync(groupedItems.Select(x => x.ProductCode), cancellationToken);
         var productsByCode = products.ToDictionary(x => x.Code, StringComparer.OrdinalIgnoreCase);
 
         foreach (var item in groupedItems)
@@ -188,7 +188,7 @@ public class ProductService : IProductService
 
             if (product.StockQuantity < item.Quantity)
             {
-                throw new AppValidationException($"Insufficient stock for product '{item.ProductCode}'.");
+                throw new ConflictException($"Insufficient stock for product '{item.ProductCode}'. Another operation may have already consumed the available stock.");
             }
         }
 

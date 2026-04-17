@@ -119,6 +119,29 @@ Objetivos:
 - evitar retry em erros funcionais, como produto inexistente ou estoque insuficiente
 - manter o comportamento previsível do fluxo de negócio
 
+## Tratamento de Concorrência
+
+Como melhoria opcional, o `estoque-service` implementa proteção para o cenário em que duas requisições tentam consumir a última unidade de um produto ao mesmo tempo.
+
+Estratégia adotada:
+- transação no fluxo de débito de estoque
+- lock em nível de linha no PostgreSQL (`FOR UPDATE`)
+- revalidação do saldo dentro da transação protegida
+
+Resultado:
+- apenas uma requisição consegue debitar a última unidade
+- a outra recebe erro de conflito de negócio
+- o estoque nunca fica negativo
+
+### Como demonstrar
+
+Com o PostgreSQL em execução, rode o teste de concorrência:
+
+```bash
+docker-compose up -d postgres
+env ENABLE_POSTGRES_CONCURRENCY_TESTS=true dotnet test estoque-service/tests/EstoqueService.IntegrationTests/EstoqueService.IntegrationTests.csproj --filter ProductConcurrencyTests -v minimal
+```
+
 ## Estrutura do Projeto
 
 ```text
