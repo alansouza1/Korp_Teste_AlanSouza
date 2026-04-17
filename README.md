@@ -202,6 +202,7 @@ A implementação foi mantida simples e segura para o desafio:
 
 ```text
 .
+├── docs/
 ├── docker/
 │   └── postgres/
 ├── estoque-service/
@@ -213,6 +214,7 @@ A implementação foi mantida simples e segura para o desafio:
 ├── frontend-angular/
 │   ├── public/
 │   └── src/
+├── scripts/
 ├── docker-compose.yml
 └── README.md
 ```
@@ -228,12 +230,18 @@ docker-compose up --build
 ### URLs da aplicação
 
 - Frontend: http://localhost:4200
-- Estoque Swagger: http://localhost:5001/swagger
-- Faturamento Swagger: http://localhost:5002/swagger
+- Estoque Swagger UI: http://localhost:5001/swagger/index.html
+- Faturamento Swagger UI: http://localhost:5002/swagger/index.html
 
 ### Observação sobre testes do frontend
 
 Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome ou Chromium** instalado no ambiente local, já que a suíte utiliza `ChromeHeadless` via Karma.
+
+Se necessário, também é possível definir manualmente:
+
+```bash
+export CHROME_BIN=/caminho/do/chrome-ou-chromium
+```
 
 ### Executar todos os testes
 
@@ -246,9 +254,9 @@ bash scripts/test-all.sh
 O script executa:
 - testes de integração do `estoque-service`
 - testes de integração do `faturamento-service`
-- testes do `frontend-angular`, quando houver Chrome ou Chromium disponível
+- testes do `frontend-angular`
 
-Se o navegador não estiver instalado, o script informa o motivo e pula apenas a etapa do frontend.
+Se não houver navegador compatível disponível, o script falha com mensagem explícita e código diferente de zero, no mesmo padrão esperado em CI.
 
 ## Principais Endpoints da API
 
