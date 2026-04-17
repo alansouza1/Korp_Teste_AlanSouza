@@ -225,6 +225,21 @@ docker-compose up --build
 
 Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome ou Chromium** instalado no ambiente local, já que a suíte utiliza `ChromeHeadless` via Karma.
 
+### Executar todos os testes
+
+Para rodar toda a suíte em sequência:
+
+```bash
+bash scripts/test-all.sh
+```
+
+O script executa:
+- testes de integração do `estoque-service`
+- testes de integração do `faturamento-service`
+- testes do `frontend-angular`, quando houver Chrome ou Chromium disponível
+
+Se o navegador não estiver instalado, o script informa o motivo e pula apenas a etapa do frontend.
+
 ## Principais Endpoints da API
 
 ### Estoque Service
