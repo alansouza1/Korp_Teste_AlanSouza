@@ -150,6 +150,10 @@ docker-compose up --build
 - Estoque Swagger: http://localhost:5001/swagger
 - Faturamento Swagger: http://localhost:5002/swagger
 
+### Observação sobre testes do frontend
+
+Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome ou Chromium** instalado no ambiente local, já que a suíte utiliza `ChromeHeadless` via Karma.
+
 ## Principais Endpoints da API
 
 ### Estoque Service
@@ -203,7 +207,3 @@ docker-compose up --build
 
 **Alan Souza**  
 Projeto desenvolvido como desafio técnico, com foco em boas práticas de arquitetura, integração entre serviços e experiência de uso.
-
----
-
-README pronto para uso no GitHub. ✅

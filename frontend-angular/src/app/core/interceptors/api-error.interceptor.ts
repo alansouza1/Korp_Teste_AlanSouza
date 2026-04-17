@@ -13,7 +13,7 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) =>
           new HttpErrorResponse({
             status: 0,
             statusText: 'Unknown Error',
-            error: { message: 'Unexpected frontend error.' }
+            error: { message: 'Erro inesperado no frontend.' }
           })
       );
     })
