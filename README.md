@@ -12,6 +12,16 @@ O backend foi dividido em dois microsserviços independentes:
 
 O frontend em Angular centraliza a operação do sistema em uma interface única, permitindo cadastrar produtos, acompanhar notas fiscais e executar o fluxo completo de emissão com feedback visual amigável.
 
+## Screenshots
+
+### Tela de Produtos
+
+![Tela de Produtos](<docs/Screenshot 2026-04-17 130752.png>)
+
+### Tela de Notas Fiscais
+
+![Tela de Notas Fiscais](<docs/Screenshot 2026-04-17 131000.png>)
+
 ## Arquitetura
 
 ### Microsserviços
