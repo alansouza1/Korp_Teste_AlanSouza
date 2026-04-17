@@ -45,5 +45,17 @@ services:
     ports:
       - "5002:8080"
 
+  frontend-angular:
+    build:
+      context: ./frontend-angular
+    container_name: frontend-angular
+    depends_on:
+      estoque-service:
+        condition: service_started
+      faturamento-service:
+        condition: service_started
+    ports:
+      - "4200:80"
+
 volumes:
   postgres_data:

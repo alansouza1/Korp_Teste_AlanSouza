@@ -7,11 +7,22 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+const string CorsPolicyName = "FrontendCors";
 
 builder.AddSerilogConfiguration();
 
 builder.Services.AddApiServices();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -31,6 +42,7 @@ using (var scope = app.Services.CreateScope())
     await InitializeDatabaseAsync(dbContext, logger);
 }
 
+app.UseCors(CorsPolicyName);
 app.MapControllers();
 
 await app.RunAsync();
