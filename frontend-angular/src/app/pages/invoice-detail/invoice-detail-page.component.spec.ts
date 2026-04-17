@@ -74,6 +74,6 @@ describe('InvoiceDetailPageComponent', () => {
     expect(printButton).withContext('print button should exist').not.toBeNull();
     expect(printButton?.disabled).toBeTrue();
     expect(addItemButton).toBeUndefined();
-    expect(fixture.nativeElement.textContent).toContain('CLOSED invoices are read-only.');
+    expect(fixture.nativeElement.textContent).toContain('Notas fiscais fechadas são somente leitura.');
   });
 });

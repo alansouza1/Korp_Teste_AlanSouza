@@ -1,6 +1,6 @@
 <div class="page-header">
   <a mat-stroked-button routerLink="/invoices">
-    Back to invoices
+    Voltar para notas fiscais
   </a>
 </div>
 
@@ -12,26 +12,28 @@
   <section class="detail-layout">
     <mat-card class="panel summary-panel">
       <mat-card-header>
-        <mat-card-title>Invoice #{{ invoice.sequentialNumber }}</mat-card-title>
-        <mat-card-subtitle>Detailed operational status and actions.</mat-card-subtitle>
+        <mat-card-title>Nota Fiscal #{{ invoice.sequentialNumber }}</mat-card-title>
+        <mat-card-subtitle>Status operacional detalhado e ações disponíveis.</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
         <div class="summary-grid">
           <div>
             <span class="label">Status</span>
-            <mat-chip [class.closed-chip]="invoice.status === 'CLOSED'">{{ invoice.status }}</mat-chip>
+            <mat-chip [class.closed-chip]="invoice.status === 'CLOSED'">
+              {{ invoice.status === 'OPEN' ? 'Aberta' : 'Fechada' }}
+            </mat-chip>
           </div>
           <div>
-            <span class="label">Created</span>
+            <span class="label">Criada em</span>
             <strong>{{ invoice.createdAt | date: 'short' }}</strong>
           </div>
           <div>
-            <span class="label">Updated</span>
+            <span class="label">Atualizada em</span>
             <strong>{{ invoice.updatedAt | date: 'short' }}</strong>
           </div>
           <div>
-            <span class="label">Print attempts</span>
+            <span class="label">Tentativas de emissão</span>
             <strong>{{ invoice.printAttempts }}</strong>
           </div>
         </div>
@@ -39,7 +41,7 @@
         @if (invoice.lastPrintError) {
           <div class="error-box">
             <div>
-              <strong>Last print error</strong>
+              <strong>Último erro de emissão</strong>
               <p>{{ invoice.lastPrintError }}</p>
             </div>
           </div>
@@ -55,7 +57,7 @@
             @if (printing) {
               <mat-spinner diameter="18" />
             }
-            Print invoice
+            Emitir nota fiscal
           </button>
         </div>
       </mat-card-content>
@@ -63,12 +65,12 @@
 
     <mat-card class="panel">
       <mat-card-header>
-        <mat-card-title>Invoice items</mat-card-title>
+        <mat-card-title>Itens da Nota Fiscal</mat-card-title>
         <mat-card-subtitle>
           @if (invoice.status === 'OPEN') {
-            This invoice is still open for item changes.
+            Esta nota fiscal ainda está aberta para alterações de itens.
           } @else {
-            CLOSED invoices are read-only.
+            Notas fiscais fechadas são somente leitura.
           }
         </mat-card-subtitle>
       </mat-card-header>
@@ -77,22 +79,22 @@
         @if (invoice.status === 'OPEN') {
           <form class="item-form" [formGroup]="addItemForm" (ngSubmit)="addItem(invoice)">
             <mat-form-field appearance="outline">
-              <mat-label>Product code</mat-label>
+              <mat-label>Código do produto</mat-label>
               <input matInput formControlName="productCode" />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Product description</mat-label>
+              <mat-label>Descrição do produto</mat-label>
               <input matInput formControlName="productDescription" />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Quantity</mat-label>
+              <mat-label>Quantidade</mat-label>
               <input matInput type="number" formControlName="quantity" />
             </mat-form-field>
 
             <button mat-flat-button color="accent" type="submit" [disabled]="addingItem">
-              Add item
+              Adicionar item
             </button>
           </form>
         }
@@ -100,17 +102,17 @@
         <div class="table-wrapper">
           <table mat-table [dataSource]="invoice.items" class="items-table">
             <ng-container matColumnDef="productCode">
-              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <th mat-header-cell *matHeaderCellDef>Código</th>
               <td mat-cell *matCellDef="let item">{{ item.productCode }}</td>
             </ng-container>
 
             <ng-container matColumnDef="productDescription">
-              <th mat-header-cell *matHeaderCellDef>Description</th>
+              <th mat-header-cell *matHeaderCellDef>Descrição</th>
               <td mat-cell *matCellDef="let item">{{ item.productDescription }}</td>
             </ng-container>
 
             <ng-container matColumnDef="quantity">
-              <th mat-header-cell *matHeaderCellDef>Quantity</th>
+              <th mat-header-cell *matHeaderCellDef>Quantidade</th>
               <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
             </ng-container>
 
