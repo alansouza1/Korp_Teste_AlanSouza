@@ -1,0 +1,41 @@
+<div class="app-shell">
+  <mat-toolbar class="topbar" color="primary">
+    <div class="brand">
+      <div class="brand-mark">NF</div>
+      <div class="brand-copy">
+        <span class="eyebrow">Invoice Issuing System</span>
+        <strong>Operational Console</strong>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a
+        mat-button
+        routerLink="/products"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }">
+        Products
+      </a>
+      <a
+        mat-button
+        routerLink="/invoices"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: false }">
+        Invoices
+      </a>
+    </nav>
+  </mat-toolbar>
+
+  <main class="page-shell">
+    <section class="hero-panel">
+      <p class="hero-kicker">Technical challenge frontend</p>
+      <h1>Stock and invoice workflows in one place.</h1>
+      <p class="hero-copy">
+        Create products, manage stock, issue invoices and monitor printing outcomes
+        with direct integration to the backend microservices.
+      </p>
+    </section>
+
+    <router-outlet />
+  </main>
+</div>
