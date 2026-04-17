@@ -233,6 +233,10 @@ docker-compose up --build
 - Estoque Swagger UI: http://localhost:5001/swagger/index.html
 - Faturamento Swagger UI: http://localhost:5002/swagger/index.html
 
+Observação:
+- para validar o Swagger via terminal, prefira `GET` com `curl -sS` ou `curl -i -sS`
+- `HEAD` com `curl -I` pode retornar `404` mesmo com a interface funcionando normalmente
+
 ### Observação sobre testes do frontend
 
 Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome ou Chromium** instalado no ambiente local, já que a suíte utiliza `ChromeHeadless` via Karma.
