@@ -1,6 +1,6 @@
-# Sistema de Emissão de Notas Fiscais
+# Sistema de Emissão de Notas Fiscais 🧾
 
-Sistema full stack desenvolvido como desafio técnico, com foco em arquitetura de microsserviços, regras de negócio bem definidas, integração entre serviços e uma interface web moderna para operação do fluxo de emissão de notas fiscais. 🚀
+Sistema full stack desenvolvido como desafio técnico, com foco em arquitetura de microsserviços, regras de negócio consistentes e integração resiliente entre serviços. 🚀
 
 ## Visão Geral
 
@@ -108,6 +108,8 @@ Nessa situação:
 - o erro é registrado
 - o frontend apresenta uma mensagem amigável ao usuário
 
+Esse cenário demonstra a capacidade do sistema de lidar com falhas sem comprometer a consistência do negócio.
+
 ### Retry com Polly
 
 O `faturamento-service` utiliza Polly para retry apenas em falhas transitórias na comunicação com o `estoque-service`.
@@ -205,5 +207,9 @@ Para executar `npm run test` no `frontend-angular`, é necessário ter **Chrome 
 
 ## Autor
 
+<<<<<<< HEAD
 **Alan Souza**  
 Projeto desenvolvido como desafio técnico, com foco em boas práticas de arquitetura, integração entre serviços e experiência de uso.
+=======
+**Alan Souza**
+>>>>>>> 377c455f408b4e48add6f33b610a59e689122a39
