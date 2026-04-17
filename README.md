@@ -201,9 +201,4 @@ docker-compose up --build
 
 ## Autor
 
-**Alan Souza**  
-Projeto desenvolvido como desafio técnico, com foco em boas práticas de arquitetura, integração entre serviços e experiência de uso.
-
----
-
-README pronto para uso no GitHub. ✅
+**Alan Souza**
