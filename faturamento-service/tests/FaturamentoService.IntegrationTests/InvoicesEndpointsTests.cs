@@ -297,7 +297,7 @@ public class InvoicesEndpointsTests
         {
             if (items.Any(x => string.Equals(x.ProductCode, "ERRO500", StringComparison.OrdinalIgnoreCase)))
             {
-                throw new ExternalServiceException("Unable to process stock right now. Please try again later.");
+                throw new ExternalServiceException("Nao foi possivel processar o estoque agora. Tente novamente mais tarde.");
             }
 
             return Task.FromResult(new StockValidationResultDto { IsValid = true });
@@ -315,7 +315,7 @@ public class InvoicesEndpointsTests
         Assert.Equal("OPEN", invoiceBody.Status);
         Assert.Equal(1, invoiceBody.PrintAttempts);
         Assert.False(string.IsNullOrWhiteSpace(invoiceBody.LastPrintError));
-        Assert.Contains("Unable to process stock right now", invoiceBody.LastPrintError, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Nao foi possivel processar o estoque agora", invoiceBody.LastPrintError, StringComparison.OrdinalIgnoreCase);
         Assert.Null(invoiceBody.ClosedAt);
     }
 

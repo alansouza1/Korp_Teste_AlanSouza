@@ -53,8 +53,8 @@ public class GlobalExceptionMiddleware
         {
             message = statusCode switch
             {
-                StatusCodes.Status500InternalServerError => "An unexpected error occurred.",
-                StatusCodes.Status503ServiceUnavailable => "Unable to print invoice right now. Please try again later.",
+                StatusCodes.Status500InternalServerError => "Ocorreu um erro inesperado.",
+                StatusCodes.Status503ServiceUnavailable => "Nao foi possivel emitir a nota fiscal agora. Tente novamente mais tarde.",
                 _ => exception.Message
             },
             traceId
